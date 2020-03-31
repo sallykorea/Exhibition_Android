@@ -141,32 +141,33 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
             contentImageView.setImageResource(R.drawable.loading);
         }
 
+        public String getContent(String contents){
+            StringBuilder sb=new StringBuilder();
+            //정규식을
+            String imgUrlCheck = "\\b(https?):\\/\\/[A-Za-z0-9-+&@#\\/%?=~_|!:,.;]*";
+            String tagCheck = "\\<\\p\\>\\<br\\s\\/\\>\\<\\/\\p\\>";
+            //패턴으로 만들고
+            Pattern imgUrlPattern=Pattern.compile(imgUrlCheck);
+            Pattern tagPattern=Pattern.compile(tagCheck);
+            Matcher imgUrlmatcher=imgUrlPattern.matcher(contents1);
+            Matcher tagmatcher=tagPattern.matcher(contents1);
 
-    }
-
-    public String getContent(String contents){
-        StringBuilder sb=new StringBuilder();
-        //정규식을
-        String imgUrlCheck = "\\b(https?):\\/\\/[A-Za-z0-9-+&@#\\/%?=~_|!:,.;]*";
-        String tagCheck = "\\<\\p\\>\\<br\\s\\/\\>\\<\\/\\p\\>";
-        //패턴으로 만들고
-        Pattern imgUrlPattern=Pattern.compile(imgUrlCheck);
-        Pattern tagPattern=Pattern.compile(tagCheck);
-        Matcher imgUrlmatcher=imgUrlPattern.matcher(contents1);
-        Matcher tagmatcher=tagPattern.matcher(contents1);
-
-        if(imgUrlmatcher.matches()){
-            while(imgUrlmatcher.find()){
-                sb.append(imgUrlmatcher.group());
+            if(imgUrlmatcher.matches()){
+                while(imgUrlmatcher.find()){
+                    sb.append(imgUrlmatcher.group());
+                }
+                return sb.toString();
             }
-            return sb.toString();
-        }
 
-        if (tagmatcher.matches()){
-            return null;
+            if (tagmatcher.matches()){
+                return "sdf";
+            }
+
         }
 
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

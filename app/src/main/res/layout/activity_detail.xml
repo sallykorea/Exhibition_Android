@@ -145,6 +145,7 @@
                 android:id="@+id/contentImageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <ListView
