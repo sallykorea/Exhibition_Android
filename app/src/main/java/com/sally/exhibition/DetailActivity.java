@@ -98,12 +98,22 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
 
-    public class SetContentTask extends AsyncTask<String, Integer, String>{
+    //정규식을
+    private String imgUrlCheck = "\\b(https?):\\/\\/[A-Za-z0-9-+&@#\\/%?=~_|!:,.;]*";
+    private String tagCheck = "<p><br \\/></p>";
+    //패턴으로 만들고
+    private Pattern imgUrlPattern;
+    private Pattern tagPattern;
+    private Matcher imgUrlmatcher;
+    private Matcher tagmatcher;
+    private StringBuilder builder;
+
+    public class SetContentTask extends AsyncTask<String, Integer, Map<String, String>>{
 
         @Override
-        protected void onPostExecute(String contents) {
-            super.onPostExecute(contents);
-            Log.d("contents", contents);
+        protected void onPostExecute(Map<String, String> map) {
+            super.onPostExecute(map);
+            //map 객체로 contents 뿌려주기!!
             if(contents!=null){
                 Glide.with(DetailActivity.this)
                         .load(contents)
@@ -116,7 +126,7 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected Map<String, String> doInBackground(String... strings) {
             String contents1=strings[0];
             String contents2=strings[1];
 
@@ -124,15 +134,27 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
 
             if(contents1!=null){
                 contents1=getContent(contents1);
-                map.put("imageUrl", contents1);
+
+                if(imgUrlPattern.matcher(builder).matches()){
+                    //정규식과 매치가 되면 url을 map에 담기
+                    map.put("imgUrl", builder.toString());
+                }else{
+                    //정규식과 매치가 안 되면 null을 map에 담기
+                    map.put("imgUrl", null);
+                }
             }
 
-            /*if(contents2!=null){
+            if(contents2!=null){
+                contents2=getContent(contents2);
 
-            }*/
+                if (tagPattern.matcher(builder).matches()){
+                    map.put("tag", builder.toString());
+                }else{
+                    map.put("tag",null);
+                }
+            }
 
-
-            return contents1;
+            return map;
         }
 
         @Override
@@ -142,28 +164,32 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         }
 
         public String getContent(String contents){
-            StringBuilder sb=new StringBuilder();
-            //정규식을
-            String imgUrlCheck = "\\b(https?):\\/\\/[A-Za-z0-9-+&@#\\/%?=~_|!:,.;]*";
-            String tagCheck = "\\<\\p\\>\\<br\\s\\/\\>\\<\\/\\p\\>";
+
             //패턴으로 만들고
-            Pattern imgUrlPattern=Pattern.compile(imgUrlCheck);
-            Pattern tagPattern=Pattern.compile(tagCheck);
-            Matcher imgUrlmatcher=imgUrlPattern.matcher(contents1);
-            Matcher tagmatcher=tagPattern.matcher(contents1);
+            imgUrlPattern=Pattern.compile(imgUrlCheck);
+            tagPattern=Pattern.compile(tagCheck);
+            imgUrlmatcher=imgUrlPattern.matcher(contents);
+            tagmatcher=tagPattern.matcher(contents);
 
-            if(imgUrlmatcher.matches()){
-                while(imgUrlmatcher.find()){
-                    sb.append(imgUrlmatcher.group());
-                }
-                return sb.toString();
+            builder=new StringBuilder();
+
+            //이미지 url을 추출하여
+            while(imgUrlmatcher.find()){
+                builder.append(imgUrlmatcher.group());
             }
 
-            if (tagmatcher.matches()){
-                return "sdf";
+            //<p><br \/></p> 이 들어 있는지 확인 및 추출
+            while (tagmatcher.find()){
+                builder.append(tagmatcher.group());
             }
 
-        }
+            if(imgUrlPattern.matcher(builder).matches()){//imgUrl 패턴과 맞으면
+                return builder.toString(); //imgUrl 리턴
+            }else { //tag 패턴과 일치하거나 null이면
+                return null; //null 반환
+            }
+
+        }//getContent
 
     }
 
