@@ -8,6 +8,7 @@ import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,7 +36,8 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
     private int seq;
     private String title, startDate, endDate, place, realmName, area, subTitle, thumbNail,
              price, contents1, contents2, url, phone, gpsX, gpsY, imgUrl, placeUrl, placeAddr;
-    private  ImageView contentImageView;
+    private  ImageView content1ImageView, content2ImageView;
+    private TextView contentsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +81,9 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         Button paymentBtn=findViewById(R.id.paymentBtn);
         Button lIkeBtn=findViewById(R.id.lIkeBtn);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        TextView contentsTextView=findViewById(R.id.contentsTextView);
-        contentImageView=findViewById(R.id.contentImageView);
+        contentsTextView=findViewById(R.id.contentsTextView);
+        content1ImageView=findViewById(R.id.content1ImageView);
+        content2ImageView=findViewById(R.id.content2ImageView);
 
         titleTextView.setText(Html.fromHtml(title));
         Glide.with(this).load(imgUrl).into(thumbNail);
@@ -114,14 +117,57 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         protected void onPostExecute(Map<String, String> map) {
             super.onPostExecute(map);
             //map 객체로 contents 뿌려주기!!
-            if(contents!=null){
+            String content1ImgUrl=map.get("content1ImgUrl");
+            String content2ImgUrl=map.get("content2ImgUrl");
+
+            if(content1ImgUrl!=null && content2ImgUrl!=null){ //content1ImgUrl content2ImgUrl가 null이 아니면
+                content1ImageView.setVisibility(View.VISIBLE);
+                content2ImageView.setVisibility(View.VISIBLE);
+                contentsTextView.setVisibility(View.GONE);
+
                 Glide.with(DetailActivity.this)
-                        .load(contents)
-                        .into(contentImageView);
+                        .load(content1ImgUrl)
+                        .into(content1ImageView);
+
+                Glide.with(DetailActivity.this)
+                        .load(content2ImgUrl)
+                        .into(content2ImageView);
+
+            }else if(content1ImgUrl!=null && content2ImgUrl==null){//content1ImgUrl이 null이 아니면
+                content1ImageView.setVisibility(View.VISIBLE);
+                content2ImageView.setVisibility(View.GONE);
+                contentsTextView.setVisibility(View.GONE);
+
+                Glide.with(DetailActivity.this)
+                        .load(content1ImgUrl)
+                        .into(content1ImageView);
+
+            }else if(content1ImgUrl==null && content2ImgUrl!=null){//content2ImgUrl가 null이 아니면
+                content1ImageView.setVisibility(View.GONE);
+                content2ImageView.setVisibility(View.VISIBLE);
+                contentsTextView.setVisibility(View.GONE);
+
+                Glide.with(DetailActivity.this)
+                        .load(content2ImgUrl)
+                        .into(content2ImageView);
+
+            }else {//content1ImgUrl과 content2ImgUrl가 null 이면
+                content1ImageView.setVisibility(View.GONE);
+                content2ImageView.setVisibility(View.GONE);
+                contentsTextView.setVisibility(View.VISIBLE);
             }
+
+            /*if(content1ImgUrl!=null && content2ImgUrl!=null){
+
+            }else if(imgUrl!=null){
+                Glide.with(DetailActivity.this)
+                        .load(imgUrl)
+                        .into(contentImageView);
+            }else if()
+
             if (contents==null){
                 contentImageView.setImageResource(R.drawable.coming_soon);
-            }
+            }*/
 
         }
 
@@ -129,22 +175,62 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         protected Map<String, String> doInBackground(String... strings) {
             String contents1=strings[0];
             String contents2=strings[1];
-
+            System.out.println(contents1);
+            System.out.println(contents2);
             Map<String, String> map=new HashMap<>();
 
-            if(contents1!=null){
+            if(contents1!=null && contents2!=null){ //contents1과 contents2가 null이 아니면
                 contents1=getContent(contents1);
-
-                if(imgUrlPattern.matcher(builder).matches()){
+                contents2=getContent(contents2);
+                if(imgUrlPattern.matcher(contents1).matches()){
                     //정규식과 매치가 되면 url을 map에 담기
-                    map.put("imgUrl", builder.toString());
+                    map.put("content1ImgUrl", contents1);
                 }else{
                     //정규식과 매치가 안 되면 null을 map에 담기
-                    map.put("imgUrl", null);
+                    map.put("content1ImgUrl", null);
                 }
+
+                if(imgUrlPattern.matcher(contents2).matches()){
+                    //정규식과 매치가 되면 url을 map에 담기
+                    map.put("content2ImgUrl", contents2);
+                }else{
+                    //정규식과 매치가 안 되면 null을 map에 담기
+                    map.put("content2ImgUrl", null);
+                }
+
+            }else if(contents1!=null && contents2==null){//contents1이 null이 아니면
+
+                contents1=getContent(contents1);
+
+                if(imgUrlPattern.matcher(contents1).matches()){
+                    //정규식과 매치가 되면 url을 map에 담기
+                    map.put("content1ImgUrl", contents1);
+                }else{
+                    //정규식과 매치가 안 되면 null을 map에 담기
+                    map.put("content1ImgUrl", null);
+                }
+                map.put("content2ImgUrl", null);
+
+            }else if(contents1==null && contents2!=null){//contents2가 null이 아니면
+
+                contents2=getContent(contents2);
+
+                if(imgUrlPattern.matcher(contents2).matches()){
+                    //정규식과 매치가 되면 url을 map에 담기
+                    map.put("content2ImgUrl", contents2);
+                }else{
+                    //정규식과 매치가 안 되면 null을 map에 담기
+                    map.put("content2ImgUrl", null);
+                }
+                map.put("content1ImgUrl", null);
+
+            }else {//contents1과 contents2가 null 이면
+
+                map.put("content1ImgUrl", null);
+                map.put("content2ImgUrl", null);
             }
 
-            if(contents2!=null){
+/*            if(contents2!=null){
                 contents2=getContent(contents2);
 
                 if (tagPattern.matcher(builder).matches()){
@@ -152,7 +238,9 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
                 }else{
                     map.put("tag",null);
                 }
-            }
+            }else { //contents2가 null이면 map에 null을 담기
+                map.put("tag", null);
+            }*/
 
             return map;
         }
@@ -160,11 +248,11 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            contentImageView.setImageResource(R.drawable.loading);
+            content1ImageView.setImageResource(R.drawable.loading);
+            content2ImageView.setImageResource(R.drawable.loading);
         }
 
         public String getContent(String contents){
-
             //패턴으로 만들고
             imgUrlPattern=Pattern.compile(imgUrlCheck);
             tagPattern=Pattern.compile(tagCheck);
@@ -173,15 +261,15 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
 
             builder=new StringBuilder();
 
-            //이미지 url을 추출하여
+            //이미지 url을 추출하기
             while(imgUrlmatcher.find()){
                 builder.append(imgUrlmatcher.group());
             }
 
-            //<p><br \/></p> 이 들어 있는지 확인 및 추출
+            /*//<p><br \/></p> 이 들어 있는지 확인 및 추출
             while (tagmatcher.find()){
                 builder.append(tagmatcher.group());
-            }
+            }*/
 
             if(imgUrlPattern.matcher(builder).matches()){//imgUrl 패턴과 맞으면
                 return builder.toString(); //imgUrl 리턴

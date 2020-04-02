@@ -138,11 +138,18 @@
                 android:id="@+id/contentsTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="줄거리"
+                android:text="내용이 없습니다. 결제페이지에서 상세 내용을 확인해주세요."
                 android:textSize="20sp" />
 
             <ImageView
-                android:id="@+id/contentImageView"
+                android:id="@+id/content1ImageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageView
+                android:id="@+id/content2ImageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
