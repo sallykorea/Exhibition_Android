@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -19,13 +20,13 @@ import org.json.JSONObject;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
+    WebView webView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        WebView webView=findViewById(R.id.webView);
+        webView=findViewById(R.id.webView);
         WebSettings webSettings=webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         //javascriptInterface()메소드를 콜 하면서 WebAppInterface객체를 전달해준다.
         webView.addJavascriptInterface(new WebAppInterface(this), "Android");
 
-        webView.loadUrl("http://192.168.0.26:8888/exhibition/");
+        webView.loadUrl("http://192.168.0.32:8888/exhibition/");
 
         /*
 
@@ -85,4 +86,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     } //class WebAppInterface end
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+
+        if((keyCode == KeyEvent.KEYCODE_BACK)&& webView.canGoBack()){
+            webView.goBack();
+            return false;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
 }
