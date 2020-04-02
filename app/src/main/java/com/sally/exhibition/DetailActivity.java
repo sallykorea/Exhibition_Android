@@ -40,7 +40,6 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
              price, contents1, contents2, url, phone, gpsX, gpsY, imgUrl, placeUrl, placeAddr;
     private  ImageView content1ImageView, content2ImageView, cantLoadMap;
     private TextView contentsTextView;
-    private FragmentTransaction ft;
     private SupportMapFragment mapFragment;
 
     @Override
@@ -85,7 +84,6 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         Button paymentBtn=findViewById(R.id.paymentBtn);
         Button lIkeBtn=findViewById(R.id.lIkeBtn);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        ft=getSupportFragmentManager().beginTransaction();
         contentsTextView=findViewById(R.id.contentsTextView);
         content1ImageView=findViewById(R.id.content1ImageView);
         content2ImageView=findViewById(R.id.content2ImageView);
@@ -99,17 +97,10 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         priceTextView.setText(price);
         phonetextView.setText(phone);
 
-        ft.hide(mapFragment);
+        mapFragment.getView().setVisibility(View.GONE);
         cantLoadMap.setVisibility(View.GONE);
 
-        //if(gpsX.equals(null) && gpsY.equals(null)){ //gpsX 와 gpsY 가 null이 아니면
-            //ft.show(mapFragment);
-            //cantLoadMap.setVisibility(View.GONE);
         mapFragment.getMapAsync(this);
-        //}else{
-            //ft.hide(mapFragment);
-            //cantLoadMap.setVisibility(View.VISIBLE);
-        //}
 
         new SetContentTask().execute(contents1, contents2);
 
@@ -118,17 +109,17 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        System.out.println("gpsX : "+gpsX);
-        System.out.println("gpsY : " + gpsY);
-        System.out.println(gpsX!=null && gpsY!=null); //true
-        if(gpsX!=null && gpsY!=null){
-            ft.show(mapFragment);
+
+        if(!gpsX.equals("null") && !gpsY.equals("null")){ //gpsX 와 gpsY 가 null이 아닐 때
+            //google map을 보여주고, imageView(cantLoadMap)를 숨긴다.
+            mapFragment.getView().setVisibility(View.VISIBLE);
             cantLoadMap.setVisibility(View.GONE);
             LatLng place = new LatLng(Double.parseDouble(gpsX), Double.parseDouble(gpsY));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 15));
             mMap.addMarker(new MarkerOptions().position(place).title(this.place));
-        }else {
-            ft.hide(mapFragment);
+        }else { //gpsX 와 gpsY 가 null일 때
+            //google map을 숨기고, imageView(cantLoadMap)를 보여준다.
+            mapFragment.getView().setVisibility(View.GONE);
             cantLoadMap.setVisibility(View.VISIBLE);
         }
 

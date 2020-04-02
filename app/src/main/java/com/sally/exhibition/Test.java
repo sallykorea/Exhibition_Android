@@ -9,9 +9,9 @@ public class Test {
     public static void main(String[] args) {
 
         try{
-            String gpsX=null;
-            String gpsY=null;
-            System.out.println(gpsX!=null && gpsY!=null); //false
+            String gpsX="null";
+            String gpsY="null";
+            System.out.println(!gpsX.equals("null") && !gpsY.equals("null")); //false
         }catch (Exception e){
             e.printStackTrace();
         }
