@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         //javascriptInterface()메소드를 콜 하면서 WebAppInterface객체를 전달해준다.
         webView.addJavascriptInterface(new WebAppInterface(this), "Android");
 
-        webView.loadUrl("http://192.168.0.32:8888/exhibition/");
+        webView.loadUrl("http://192.168.0.26:8888/exhibition/");
 
         /*
 

@@ -134,6 +134,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp" />
 
+            <ImageView
+                android:id="@+id/cantLoadMap"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                tools:srcCompat="@drawable/cantloadmap" />
+
             <TextView
                 android:id="@+id/contentsTextView"
                 android:layout_width="match_parent"

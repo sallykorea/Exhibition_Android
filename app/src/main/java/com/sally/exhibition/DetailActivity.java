@@ -1,6 +1,8 @@
 package com.sally.exhibition;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,8 +38,10 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
     private int seq;
     private String title, startDate, endDate, place, realmName, area, subTitle, thumbNail,
              price, contents1, contents2, url, phone, gpsX, gpsY, imgUrl, placeUrl, placeAddr;
-    private  ImageView content1ImageView, content2ImageView;
+    private  ImageView content1ImageView, content2ImageView, cantLoadMap;
     private TextView contentsTextView;
+    private FragmentTransaction ft;
+    private SupportMapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +84,12 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         TextView phonetextView=findViewById(R.id.phonetextView);
         Button paymentBtn=findViewById(R.id.paymentBtn);
         Button lIkeBtn=findViewById(R.id.lIkeBtn);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        ft=getSupportFragmentManager().beginTransaction();
         contentsTextView=findViewById(R.id.contentsTextView);
         content1ImageView=findViewById(R.id.content1ImageView);
         content2ImageView=findViewById(R.id.content2ImageView);
+        cantLoadMap=findViewById(R.id.cantLoadMap);
 
         titleTextView.setText(Html.fromHtml(title));
         Glide.with(this).load(imgUrl).into(thumbNail);
@@ -93,22 +99,50 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         priceTextView.setText(price);
         phonetextView.setText(phone);
 
+        ft.hide(mapFragment);
+        cantLoadMap.setVisibility(View.GONE);
+
+        //if(gpsX.equals(null) && gpsY.equals(null)){ //gpsX 와 gpsY 가 null이 아니면
+            //ft.show(mapFragment);
+            //cantLoadMap.setVisibility(View.GONE);
         mapFragment.getMapAsync(this);
-        //Log.d("content", contents1);
+        //}else{
+            //ft.hide(mapFragment);
+            //cantLoadMap.setVisibility(View.VISIBLE);
+        //}
 
         new SetContentTask().execute(contents1, contents2);
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        System.out.println("gpsX : "+gpsX);
+        System.out.println("gpsY : " + gpsY);
+        System.out.println(gpsX!=null && gpsY!=null); //true
+        if(gpsX!=null && gpsY!=null){
+            ft.show(mapFragment);
+            cantLoadMap.setVisibility(View.GONE);
+            LatLng place = new LatLng(Double.parseDouble(gpsX), Double.parseDouble(gpsY));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 15));
+            mMap.addMarker(new MarkerOptions().position(place).title(this.place));
+        }else {
+            ft.hide(mapFragment);
+            cantLoadMap.setVisibility(View.VISIBLE);
+        }
 
     }
 
 
     //정규식을
     private String imgUrlCheck = "\\b(https?):\\/\\/[A-Za-z0-9-+&@#\\/%?=~_|!:,.;]*";
-    private String tagCheck = "<p><br \\/></p>";
+    //private String tagCheck = "<p><br \\/></p>";
     //패턴으로 만들고
     private Pattern imgUrlPattern;
-    private Pattern tagPattern;
+    //private Pattern tagPattern;
     private Matcher imgUrlmatcher;
-    private Matcher tagmatcher;
+    //private Matcher tagmatcher;
     private StringBuilder builder;
 
     public class SetContentTask extends AsyncTask<String, Integer, Map<String, String>>{
@@ -157,31 +191,15 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
                 contentsTextView.setVisibility(View.VISIBLE);
             }
 
-            /*if(content1ImgUrl!=null && content2ImgUrl!=null){
-
-            }else if(imgUrl!=null){
-                Glide.with(DetailActivity.this)
-                        .load(imgUrl)
-                        .into(contentImageView);
-            }else if()
-
-            if (contents==null){
-                contentImageView.setImageResource(R.drawable.coming_soon);
-            }*/
-
         }
 
         @Override
         protected Map<String, String> doInBackground(String... strings) {
-            String contents1=strings[0];
-            String contents2=strings[1];
-            System.out.println(contents1);
-            System.out.println(contents2);
+            String contents1=getContent(strings[0]);
+            String contents2=getContent(strings[1]);
             Map<String, String> map=new HashMap<>();
-
             if(contents1!=null && contents2!=null){ //contents1과 contents2가 null이 아니면
-                contents1=getContent(contents1);
-                contents2=getContent(contents2);
+
                 if(imgUrlPattern.matcher(contents1).matches()){
                     //정규식과 매치가 되면 url을 map에 담기
                     map.put("content1ImgUrl", contents1);
@@ -199,8 +217,6 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
                 }
 
             }else if(contents1!=null && contents2==null){//contents1이 null이 아니면
-
-                contents1=getContent(contents1);
 
                 if(imgUrlPattern.matcher(contents1).matches()){
                     //정규식과 매치가 되면 url을 map에 담기
@@ -230,18 +246,6 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
                 map.put("content2ImgUrl", null);
             }
 
-/*            if(contents2!=null){
-                contents2=getContent(contents2);
-
-                if (tagPattern.matcher(builder).matches()){
-                    map.put("tag", builder.toString());
-                }else{
-                    map.put("tag",null);
-                }
-            }else { //contents2가 null이면 map에 null을 담기
-                map.put("tag", null);
-            }*/
-
             return map;
         }
 
@@ -255,9 +259,9 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         public String getContent(String contents){
             //패턴으로 만들고
             imgUrlPattern=Pattern.compile(imgUrlCheck);
-            tagPattern=Pattern.compile(tagCheck);
+            //tagPattern=Pattern.compile(tagCheck);
             imgUrlmatcher=imgUrlPattern.matcher(contents);
-            tagmatcher=tagPattern.matcher(contents);
+            //tagmatcher=tagPattern.matcher(contents);
 
             builder=new StringBuilder();
 
@@ -265,11 +269,6 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
             while(imgUrlmatcher.find()){
                 builder.append(imgUrlmatcher.group());
             }
-
-            /*//<p><br \/></p> 이 들어 있는지 확인 및 추출
-            while (tagmatcher.find()){
-                builder.append(tagmatcher.group());
-            }*/
 
             if(imgUrlPattern.matcher(builder).matches()){//imgUrl 패턴과 맞으면
                 return builder.toString(); //imgUrl 리턴
@@ -281,15 +280,5 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
 
     }
 
-
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        LatLng place = new LatLng(Double.parseDouble(gpsX), Double.parseDouble(gpsY));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 15));
-        mMap.addMarker(new MarkerOptions().position(place).title(this.place));
-    }
 
 }

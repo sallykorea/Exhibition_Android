@@ -7,6 +7,18 @@ import java.util.regex.Pattern;
 
 public class Test {
     public static void main(String[] args) {
+
+        try{
+            String gpsX=null;
+            String gpsY=null;
+            System.out.println(gpsX!=null && gpsY!=null); //false
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+    }
+            /*
         String contents1="<p><img src=\"http://culture.go.kr/upload/editor_upload/20190125181623798_11PN4U4N.jpg\" title=\"공포연극 조각\" alt=\"공포연극 조각\" style=\"vertical-align: baseline; border: 0px solid rgb(0, 0, 0);\" /></p>";
         String contents2="<p><br /></p>";
         StringBuilder sb=new StringBuilder();
@@ -34,9 +46,5 @@ public class Test {
             System.out.println("!!");
             sb2.append(matcher2.group());
         }
-        //System.out.println(sb2.toString()==);
-
-        //System.out.println(pattern2.matcher(sb2).matches());
-
-    }
+        */
 }
