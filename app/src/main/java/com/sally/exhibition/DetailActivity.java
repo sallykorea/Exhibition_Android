@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -32,7 +34,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DetailActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class DetailActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
 
     private GoogleMap mMap;
     private int seq;
@@ -82,8 +84,11 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         TextView phonetextView=findViewById(R.id.phonetextView);
         Button paymentBtn=findViewById(R.id.paymentBtn);
         Button lIkeBtn=findViewById(R.id.lIkeBtn);
+        paymentBtn.setOnClickListener(this);
+        lIkeBtn.setOnClickListener(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         cantLoadMap=findViewById(R.id.cantLoadMap);
+
 
         titleTextView.setText(Html.fromHtml(title));
         Glide.with(this).load(imgUrl).into(thumbNail);
@@ -103,6 +108,20 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.paymentBtn:
+                Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+                break;
+            case R.id.lIkeBtn:
+
+                break;
+        }
+    }
+
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
@@ -120,6 +139,5 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         }
 
     }
-
 
 }
