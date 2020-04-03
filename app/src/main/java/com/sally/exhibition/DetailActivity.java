@@ -42,6 +42,7 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
              price, contents1, contents2, url, phone, gpsX, gpsY, imgUrl, placeUrl, placeAddr;
     private  ImageView cantLoadMap;
     private SupportMapFragment mapFragment;
+    private TextView phonetextView, placeTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,24 +72,26 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
             imgUrl=detailObj.getString("imgUrl");
             placeUrl=detailObj.getString("placeUrl");
             placeAddr=detailObj.getString("placeAddr");
+            placeUrl=detailObj.getString("placeUrl");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         TextView titleTextView=findViewById(R.id.titleTextView);
         ImageView thumbNail=findViewById(R.id.thumbNail);
-        TextView placeTextView=findViewById(R.id.placeTextView);
+        placeTextView=findViewById(R.id.placeTextView);
         TextView startDateTextView=findViewById(R.id.startDateTextView);
         TextView endDateTextView=findViewById(R.id.endDateTextView);
         TextView priceTextView=findViewById(R.id.priceTextView);
-        TextView phonetextView=findViewById(R.id.phonetextView);
+        phonetextView=findViewById(R.id.phonetextView);
         Button paymentBtn=findViewById(R.id.paymentBtn);
         Button lIkeBtn=findViewById(R.id.lIkeBtn);
-        paymentBtn.setOnClickListener(this);
-        lIkeBtn.setOnClickListener(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         cantLoadMap=findViewById(R.id.cantLoadMap);
-
+        placeTextView=findViewById(R.id.placeTextView);
+        if(!placeUrl.equals("null")){
+            placeTextView.setClickable(true);
+        }
 
         titleTextView.setText(Html.fromHtml(title));
         Glide.with(this).load(imgUrl).into(thumbNail);
@@ -98,21 +101,36 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         priceTextView.setText(price);
         phonetextView.setText(phone);
 
+        phonetextView.setOnClickListener(this);
+        placeTextView.setOnClickListener(this);
+        paymentBtn.setOnClickListener(this);
+        lIkeBtn.setOnClickListener(this);
+
         mapFragment.getView().setVisibility(View.GONE);
         cantLoadMap.setVisibility(View.GONE);
 
         mapFragment.getMapAsync(this);
 
-        new com.sally.exhibition.SetContentTask(this).execute(contents1, contents2);
+        new SetContentTask(this).execute(contents1, contents2);
 
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.paymentBtn:
-                Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(intent);
+            case R.id.placeTextView:
+                Intent placeUrlIntent=new Intent(Intent.ACTION_VIEW, Uri.parse(placeUrl));
+                startActivity(placeUrlIntent);
+                break;
+            case R.id.phonetextView:
+                Intent CallIntent=new Intent();
+                CallIntent.setAction(Intent.ACTION_DIAL);
+                CallIntent.setData(Uri.parse("tel:"+phonetextView.getText()));
+                startActivity(CallIntent);
+                break;
+            case  R.id.paymentBtn:
+                Intent paymentIntent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(paymentIntent);
                 break;
             case R.id.lIkeBtn:
 
