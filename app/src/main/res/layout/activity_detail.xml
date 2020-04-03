@@ -60,7 +60,6 @@
 
             <TextView
                 android:id="@+id/placeTextView"
-                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="장소"
@@ -104,7 +103,6 @@
                 android:id="@+id/phonetextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
                 android:text="phone"
                 android:textSize="20sp" />
 

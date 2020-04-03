@@ -1,15 +1,10 @@
 package com.sally.exhibition;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdate;
@@ -48,7 +42,6 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
              price, contents1, contents2, url, phone, gpsX, gpsY, imgUrl, placeUrl, placeAddr;
     private  ImageView cantLoadMap;
     private SupportMapFragment mapFragment;
-    private TextView phonetextView, placeTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,26 +69,25 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
             gpsY=detailObj.getString("gpsX");//DB에 X,Y 좌표가 반대로 들어가 있음
             gpsX=detailObj.getString("gpsY");
             imgUrl=detailObj.getString("imgUrl");
-            placeAddr=detailObj.getString("placeAddr");
             placeUrl=detailObj.getString("placeUrl");
+            placeAddr=detailObj.getString("placeAddr");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         TextView titleTextView=findViewById(R.id.titleTextView);
         ImageView thumbNail=findViewById(R.id.thumbNail);
+        TextView placeTextView=findViewById(R.id.placeTextView);
         TextView startDateTextView=findViewById(R.id.startDateTextView);
         TextView endDateTextView=findViewById(R.id.endDateTextView);
         TextView priceTextView=findViewById(R.id.priceTextView);
-        phonetextView=findViewById(R.id.phonetextView);
+        TextView phonetextView=findViewById(R.id.phonetextView);
         Button paymentBtn=findViewById(R.id.paymentBtn);
         Button lIkeBtn=findViewById(R.id.lIkeBtn);
+        paymentBtn.setOnClickListener(this);
+        lIkeBtn.setOnClickListener(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         cantLoadMap=findViewById(R.id.cantLoadMap);
-        placeTextView=findViewById(R.id.placeTextView);
-        if(!placeUrl.equals("null")){
-            placeTextView.setClickable(true);
-        }
 
 
         titleTextView.setText(Html.fromHtml(title));
@@ -106,43 +98,28 @@ public class DetailActivity extends AppCompatActivity implements OnMapReadyCallb
         priceTextView.setText(price);
         phonetextView.setText(phone);
 
-        phonetextView.setOnClickListener(this);
-        placeTextView.setOnClickListener(this);
-        paymentBtn.setOnClickListener(this);
-        lIkeBtn.setOnClickListener(this);
-
         mapFragment.getView().setVisibility(View.GONE);
         cantLoadMap.setVisibility(View.GONE);
 
         mapFragment.getMapAsync(this);
 
-        new SetContentTask(this).execute(contents1, contents2);
+        new com.sally.exhibition.SetContentTask(this).execute(contents1, contents2);
 
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.placeTextView:
-                Intent placeUrlIntent=new Intent(Intent.ACTION_VIEW, Uri.parse(placeUrl));
-                startActivity(placeUrlIntent);
-                break;
-            case R.id.phonetextView:
-                Intent CallIntent=new Intent();
-                CallIntent.setAction(Intent.ACTION_DIAL);
-                CallIntent.setData(Uri.parse("tel:"+phonetextView.getText()));
-                startActivity(CallIntent);
-                break;
             case R.id.paymentBtn:
-                Intent paymentIntent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(paymentIntent);
+                Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
                 break;
             case R.id.lIkeBtn:
 
                 break;
-
         }
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
