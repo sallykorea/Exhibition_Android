@@ -80,9 +80,9 @@ public class MainActivity extends AppCompatActivity {
             여러가지 데이터를 받아올 때는 JSON 문자열로 많이 받아온다.
          */
         @JavascriptInterface
-        public void showToast(String toast) {
+        public void getDetailData(String data) {
             Intent intent=new Intent(MainActivity.this, DetailActivity.class);
-            intent.putExtra("detailHref", toast);
+            intent.putExtra("detailHref", data);
             startActivity(intent);
         }
     } //class WebAppInterface end
